@@ -1,0 +1,34 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' =========================
+' Feature: Vragenbank
+' =========================
+
+class Vraag {
+  +Long id
+  +String vraagTekst
+  +Instant aangemaaktOp
+}
+
+class AntwoordOptie {
+  +Long id
+  +String tekst
+  +Boolean correct
+}
+
+Vraag "1" -- "2..*" AntwoordOptie : heeft >
+
+note right of Vraag
+  Regels:
+  - Een Vraag heeft minimaal 2 antwoordopties
+  - Minimaal 1 optie is correct
+  - Meerdere opties kunnen correct zijn
+end note
+
+note right of AntwoordOptie
+  correct = true betekent:
+  deze optie hoort bij het juiste antwoord.
+end note
+
+@enduml

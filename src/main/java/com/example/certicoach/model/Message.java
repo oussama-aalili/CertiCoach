@@ -13,7 +13,7 @@ public class Message {
     private Long id;
     private String content;
 
-    public String getContent(){
+    public String getContent() {
         return content;
     }
 

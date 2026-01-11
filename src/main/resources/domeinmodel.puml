@@ -1,0 +1,119 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' =========================
+' Gebruikers
+' =========================
+class Gebruiker {
+  +UUID id
+  +String email
+  +String wachtwoordHash
+  +Instant aangemaaktOp
+}
+
+' =========================
+' Certificering & Categorisatie
+' =========================
+class Certificering {
+  +Long id
+  +String naam
+  +String beschrijving
+}
+
+class Onderwerp {
+  +Long id
+  +String naam
+}
+
+Certificering "1" -- "0..*" Onderwerp : bevat >
+
+' =========================
+' Leerdoelen
+' =========================
+enum LeerdoelStatus {
+  OPEN
+  IN_BEHANDELING
+  BEHAALD
+}
+
+class Leerdoel {
+  +Long id
+  +String titel
+  +String beschrijving
+}
+
+Certificering "1" -- "0..*" Leerdoel : omvat >
+Onderwerp "0..1" -- "0..*" Leerdoel : gekoppeldAan >
+
+' =========================
+' Vragenbank
+' =========================
+enum VraagType {
+  MEERKEUZE
+}
+
+class Vraag {
+  +Long id
+  +VraagType type
+  +String vraagTekst
+  +String uitleg
+  +Integer moeilijkheid
+  +Instant aangemaaktOp
+}
+
+class AntwoordOptie {
+  +Long id
+  +String tekst
+  +Boolean correct
+}
+
+Certificering "1" -- "0..*" Vraag : bevat >
+Onderwerp "1" -- "0..*" Vraag : gecategoriseerdAls >
+Gebruiker "1" -- "0..*" Vraag : aangemaaktDoor >
+Vraag "1" -- "2..*" AntwoordOptie : heeft >
+
+' Many-to-many: Vraag <-> Leerdoel
+class VraagLeerdoel {
+  +Long vraagId
+  +Long leerdoelId
+}
+
+Vraag "1" -- "0..*" VraagLeerdoel
+Leerdoel "1" -- "0..*" VraagLeerdoel
+
+' =========================
+' Oefenen & Voortgang
+' =========================
+class OefenPoging {
+  +UUID id
+  +Instant beantwoordOp
+  +Boolean correct
+  +Long tijdBesteedMs
+}
+
+class GeselecteerdeAntwoordOptie {
+  +UUID oefenPogingId
+  +Long antwoordOptieId
+}
+
+Gebruiker "1" -- "0..*" OefenPoging : doet >
+Vraag "1" -- "0..*" OefenPoging : geoefendMet >
+OefenPoging "1" -- "1..*" GeselecteerdeAntwoordOptie : selecteert >
+AntwoordOptie "1" -- "0..*" GeselecteerdeAntwoordOptie : gekozen >
+
+' =========================
+' Leerdoel Voortgang (optioneel opgeslagen)
+' =========================
+class LeerdoelVoortgang {
+  +UUID id
+  +LeerdoelStatus status
+  +Double succesRatio
+  +Integer aantalBeantwoord
+  +Integer aantalCorrect
+  +Instant laatstGeoefend
+}
+
+Gebruiker "1" -- "0..*" LeerdoelVoortgang : heeft >
+Leerdoel "1" -- "0..*" LeerdoelVoortgang : voortgangVan >
+
+@enduml

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
     private final HelloProvider messageProvider;
 
-    HelloController(HelloProvider messageProvider ){
+    HelloController(HelloProvider messageProvider) {
         this.messageProvider = messageProvider;
     }
 
