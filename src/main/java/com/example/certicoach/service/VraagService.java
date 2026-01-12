@@ -3,6 +3,7 @@ package com.example.certicoach.service;
 import com.example.certicoach.dto.*;
 import com.example.certicoach.model.Antwoord;
 import com.example.certicoach.model.Vraag;
+import com.example.certicoach.repository.LeerdoelRepository;
 import com.example.certicoach.repository.VraagRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 public class VraagService {
 
     private final VraagRepository vraagRepository;
+    private final LeerdoelRepository leerdoelRepository;
 
     // CREATE
     public VraagResponse create(VraagCreateRequest request) {
@@ -29,6 +31,9 @@ public class VraagService {
                 vraag.voegAntwoordToe(new Antwoord(a.tekst(), a.correct()));
             }
         }
+
+        var leerdoelen = resolveLeerdoelen(request.leerdoelIds());
+        vraag.vervangLeerdoelen(leerdoelen);
 
         Vraag saved = vraagRepository.save(vraag);
         return mapToResponse(saved);
@@ -66,6 +71,9 @@ public class VraagService {
             }
         }
 
+        var leerdoelen = resolveLeerdoelen(request.leerdoelIds());
+        vraag.vervangLeerdoelen(leerdoelen);
+
         Vraag saved = vraagRepository.save(vraag);
         return mapToResponse(saved);
     }
@@ -85,7 +93,12 @@ public class VraagService {
                 .map(a -> new AntwoordResponse(a.getId(), a.getTekst(), a.isCorrect()))
                 .toList();
 
-        return new VraagResponse(vraag.getId(), vraag.getVraagTekst(), antwoorden);
+
+        var leerdoelen = vraag.getLeerdoelen().stream()
+                .map(ld -> new LeerdoelResponse(ld.getId(), ld.getTitel()))
+                .toList();
+
+        return new VraagResponse(vraag.getId(), vraag.getVraagTekst(), antwoorden, leerdoelen);
     }
 
 
@@ -108,6 +121,17 @@ public class VraagService {
         if (heeftLeegAntwoord) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Antwoord tekst mag niet leeg zijn");
         }
+    }
+
+    private java.util.Set<com.example.certicoach.model.Leerdoel> resolveLeerdoelen(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return java.util.Set.of();
+
+        var leerdoelen = leerdoelRepository.findAllById(ids);
+        // check of alles bestaat
+        if (leerdoelen.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Eén of meerdere leerdoelen bestaan niet");
+        }
+        return new java.util.HashSet<>(leerdoelen);
     }
 
 

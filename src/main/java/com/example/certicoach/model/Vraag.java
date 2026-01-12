@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -47,5 +49,25 @@ public class Vraag {
         }
         this.vraagTekst = nieuweVraagTekst;
     }
+
+    @ManyToMany
+    @JoinTable(
+            name = "vraag_leerdoel",
+            joinColumns = @JoinColumn(name = "vraag_id"),
+            inverseJoinColumns = @JoinColumn(name = "leerdoel_id")
+    )
+    private Set<Leerdoel> leerdoelen = new HashSet<>();
+
+    public void koppelLeerdoel(Leerdoel leerdoel) {
+        leerdoelen.add(leerdoel);
+    }
+
+    public void vervangLeerdoelen(Set<Leerdoel> nieuweLeerdoelen) {
+        leerdoelen.clear();
+        leerdoelen.addAll(nieuweLeerdoelen);
+    }
+
+
+
 
 }

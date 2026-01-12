@@ -1,6 +1,5 @@
-INSERT INTO message (id, content)
-VALUES (1, 'Hello');
-INSERT INTO message (id, content)
-VALUES (2, 'Welkom bij CertiCoach');
-INSERT INTO message (id, content)
-VALUES (3, 'Goed bezig!');
+MERGE INTO leerdoel (id, titel, omschrijving) KEY(id)
+    VALUES (1, 'Scrum Rollen', 'Ken de rollen en verantwoordelijkheden');
+
+MERGE INTO leerdoel (id, titel, omschrijving) KEY(id)
+    VALUES (2, 'Scrum Events', 'Ken de events en hun doel');

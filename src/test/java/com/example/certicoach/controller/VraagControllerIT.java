@@ -81,4 +81,27 @@ class VraagControllerIT {
                 .andExpect(status().isBadRequest());
     }
 
+
+    @Test
+    void postVraag_withLeerdoelen_returns201_andContainsLeerdoelen() throws Exception {
+        String body = """
+    {
+      "vraagTekst": "Wat is Scrum?",
+      "antwoorden": [
+        { "tekst": "Een framework", "correct": true },
+        { "tekst": "Een programmeertaal", "correct": false }
+      ],
+      "leerdoelIds": [1, 2]
+    }
+    """;
+
+        mockMvc.perform(post("/api/vragen")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.leerdoelen.length()").value(2))
+                .andExpect(jsonPath("$.leerdoelen[0].id").exists());
+    }
+
+
 }
